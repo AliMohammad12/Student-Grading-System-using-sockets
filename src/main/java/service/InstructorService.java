@@ -24,6 +24,10 @@ public class InstructorService {
         return instructorDao.getAllInstructors();
     }
 
+
+    public Instructor getInstructorByAccountId(int accountId) {
+        return instructorDao.getInstructorByAccountId(accountId);
+    }
     public List<Instructor> getInstructorsByDepartment(int departmentId) {
         return getInstructorsByDepartment(departmentId);
     }

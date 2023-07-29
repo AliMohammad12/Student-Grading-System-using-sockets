@@ -1,9 +1,12 @@
 package daoimpl;
 
 import dao.StudentDao;
+import model.Course;
+import model.Instructor;
 import model.Student;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StudentDaoImpl implements StudentDao {
@@ -56,6 +59,44 @@ public class StudentDaoImpl implements StudentDao {
             e.printStackTrace();
         }
         return null;
+    }
+    public List<Student> findStudentsByCourseAndInstructor(Course course, Instructor instructor) {
+        String query = "SELECT " +
+                "s.id AS Student_ID, " +
+                "s.first_name AS First_Name, " +
+                "s.last_name AS Last_Name, " +
+                "s.email AS Email, " +
+                "s.major AS Major, " +
+                "s.academic_year AS Academic_Year " +
+                "FROM student s " +
+                "JOIN student_courses sc ON s.id = sc.student_id " +
+                "JOIN instructor_courses ic ON sc.instructor_id = ic.instructor_id " +
+                "WHERE ic.instructor_id = ? AND sc.course_id = ?";
+
+        List<Student> studentList = new ArrayList<>();
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, instructor.getInstructorId());
+            statement.setInt(2, course.getCourseId());
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int studentId = resultSet.getInt("Student_ID");
+                    String firstName = resultSet.getString("First_Name");
+                    String lastName = resultSet.getString("Last_Name");
+                    String email = resultSet.getString("Email");
+                    String major = resultSet.getString("Major");
+                    int academicYear = resultSet.getInt("Academic_Year");
+
+                    Student student = new Student(firstName, lastName, major, academicYear, email);
+                    student.setStudentId(studentId);
+                    studentList.add(student);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return studentList;
     }
 
     public Student getStudentById(int studentId) {

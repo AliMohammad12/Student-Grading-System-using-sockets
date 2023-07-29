@@ -3,11 +3,9 @@ package daoimpl;
 
 import dao.InstructorDao;
 import model.Instructor;
+import model.Student;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 public class InstructorDaoImpl implements InstructorDao {
@@ -37,7 +35,29 @@ public class InstructorDaoImpl implements InstructorDao {
             System.out.println("Sorry, we encountered an issue while creating your request. Please try again later.");
         }
     }
+    public Instructor getInstructorByAccountId(int accountId) {
+        String query = "SELECT first_name, last_name, department_name, email, id FROM instructor WHERE account_id = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, accountId);
 
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String firstName = resultSet.getString("first_name");
+                    String lastName = resultSet.getString("last_name");
+                    String departmentName  = resultSet.getString("department_name");
+                    String email = resultSet.getString("email");
+                    int instructorId = resultSet.getInt("id");
+                    Instructor instructor = new Instructor(firstName, lastName, departmentName, email, accountId);
+                    instructor.setInstructorId(instructorId);
+                    return instructor;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     public Instructor getInstructorById(int instructorId) {
         return null;
     }

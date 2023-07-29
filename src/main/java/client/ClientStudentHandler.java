@@ -24,13 +24,28 @@ public class ClientStudentHandler {
             responseStudentMenu();
             choice = scan.nextInt();
             toServer.writeInt(choice);
-
             if (choice == 1) {
-                System.out.println(fromServer.readUTF());
+                handleDisplayingStudentInformation();
             } else if (choice == 2) {
+                handleDisplayingStudentCourses();
+            } else if (choice == 3) {
                 handleEnrollingInCourse();
+            } else if (choice == 4) {
+                handleWithdrawingFromCourse();
+            } else if (choice == 5) {
+                viewCourseGrade();
             }
-        } while (choice != 5);
+        } while (choice != 6);
+    }
+    private void handleDisplayingStudentInformation() throws IOException {
+        System.out.println(fromServer.readUTF());
+    }
+    private void handleDisplayingStudentCourses() throws IOException {
+        System.out.println(fromServer.readUTF());
+        int numberOfCourses = fromServer.readInt();
+        for (int i = 0; i < numberOfCourses; i++) {
+            System.out.println(fromServer.readUTF());
+        }
     }
     private void handleEnrollingInCourse() throws IOException {
         System.out.println(fromServer.readUTF());
@@ -58,7 +73,32 @@ public class ClientStudentHandler {
         System.out.println(fromServer.readUTF());
     }
 
+    private void handleWithdrawingFromCourse() throws IOException {
+        Scanner scan = new Scanner(System.in);
+        System.out.println(fromServer.readUTF());
+        int numberOfCourses = fromServer.readInt();
+        for (int i = 0; i < numberOfCourses; i++) {
+            System.out.println(fromServer.readUTF());
+        }
+        int selectedCourseId = scan.nextInt();
+        toServer.writeInt(selectedCourseId);
+        System.out.println(fromServer.readUTF());
+    }
+
+    private void viewCourseGrade() throws IOException {
+        Scanner scan = new Scanner(System.in);
+        System.out.println(fromServer.readUTF());
+        int numberOfCourses = fromServer.readInt();
+        for (int i = 0; i < numberOfCourses; i++) {
+            System.out.println(fromServer.readUTF());
+        }
+        int selectedCourseId = scan.nextInt();
+        toServer.writeInt(selectedCourseId);
+        System.out.println(fromServer.readUTF());
+    }
+
     private void responseStudentMenu() throws IOException {
+        System.out.println(fromServer.readUTF());
         System.out.println(fromServer.readUTF());
         System.out.println(fromServer.readUTF());
         System.out.println(fromServer.readUTF());

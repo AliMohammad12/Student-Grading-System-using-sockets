@@ -25,7 +25,7 @@ public class Server {
     private ServerLoginHandler loginHandler;
     private ServerRegistrationHandler registrationHandler;
     private ServerStudentHandler serverStudentHandler;
-
+    private ServerInstructorHandler serverInstructorHandler;
     private DataInputStream inputFromClient = null;
     private DataOutputStream outputToClient = null;
     public Server() {
@@ -49,6 +49,7 @@ public class Server {
                 studentService, instructorService, departmentService);
 
         serverStudentHandler = new ServerStudentHandler(studentService, courseService);
+        serverInstructorHandler = new ServerInstructorHandler(instructorService, courseService, studentService);
     }
     public void startServer(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -72,12 +73,16 @@ public class Server {
 
         loginHandler.setInputFromClient(inputFromClient);
         loginHandler.setOutputToClient(outputToClient);
+
         registrationHandler.setInputFromClient(inputFromClient);
         registrationHandler.setOutputToClient(outputToClient);
+
         serverStudentHandler.setInputFromClient(inputFromClient);
         serverStudentHandler.setOutputToClient(outputToClient);
-    }
 
+        serverInstructorHandler.setInputFromClient(inputFromClient);
+        serverInstructorHandler.setOutputToClient(outputToClient);
+    }
 
     private class ClientHandler extends Thread {
         private Socket clientSocket;
@@ -88,32 +93,32 @@ public class Server {
         @Override
         public void run() {
             try {
-                Account account = null;
                 do {
-                    showMenu();
-                    int choice = inputFromClient.readInt();
-                    if (choice == 1) {
-                        account = loginHandler.login();
-                    } else if (choice == 2) {
-                        registrationHandler.register();
+                    Account account = null;
+                    boolean loggedIn = false;
+                    do {
+                        showMenu();
+                        int choice = inputFromClient.readInt();
+                        if (choice == 1) {
+                            account = loginHandler.login();
+                            loggedIn = true;
+                        } else if (choice == 2) {
+                            registrationHandler.register();
+                        } else {
+                            clientSocket.close();
+                            return;
+                        }
+                    } while (loggedIn == false);
+
+                    // I have the account (Logged in)
+                    String role = account.getRole();
+                    outputToClient.writeUTF(role);
+                    if (role.equals("Student")) {
+                        serverStudentHandler.handleStudent(account);
                     } else {
-                        clientSocket.close();
-                        return;
+                        serverInstructorHandler.handleInstructor(account);
                     }
-
-                } while (account == null);
-
-                // I have the account (Logged in)
-                String role = account.getRole();
-                outputToClient.writeUTF(role);
-                if (role.equals("Student")) {
-                    serverStudentHandler.handleStudent(account);
-                } else {
-                    outputToClient.writeUTF("Welcome Instructor");
-                    instructorHandler(account);
-                }
-                clientSocket.close();
-
+                } while (true);
             } catch(IOException e){
                 e.printStackTrace();
             }
@@ -128,9 +133,6 @@ public class Server {
         }
 
 
-        private void instructorHandler(Account account) {
-
-        }
 
     }
 

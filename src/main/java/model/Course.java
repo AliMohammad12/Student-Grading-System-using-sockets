@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Course {
-    int courseId;
+    private int courseId;
     private String courseName;
     private String departmentName;
 
@@ -12,7 +12,6 @@ public class Course {
         this.courseName = courseName;
         this.departmentName = departmentName;
     }
-
     public String getCourseName() {
         return courseName;
     }
@@ -41,8 +40,7 @@ public class Course {
     public String toString() {
         String ret = "";
         ret += "-Name: " + courseName;
-        ret += "  |  Department: " + departmentName + "\n";
-        ret += "- Course teachers: \n";
+        ret += "  |  Department: " + departmentName;
         return ret;
     }
 

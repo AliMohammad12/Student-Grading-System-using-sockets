@@ -9,6 +9,13 @@ public class Student {
     private int accountId;
     private int studentId;
 
+    public Student(String firstName, String lastName, String major, int academicYear, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.major = major;
+        this.academicYear = academicYear;
+        this.email = email;
+    }
     public Student(String firstName, String lastName, String major, int academicYear, String email, int accountId) {
         this.firstName = firstName;
         this.lastName = lastName;

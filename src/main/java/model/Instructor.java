@@ -72,7 +72,7 @@ public class Instructor {
     @Override
     public String toString() {
         String ret = "";
-        ret += "Name: " + firstName + " " + lastName +  "| Email : " + email;
+        ret += "Name: " + firstName + " " + lastName +  " | Email: " + email + " | Department: " + departmentName;
         return ret;
     }
 }

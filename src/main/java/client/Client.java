@@ -9,6 +9,8 @@ public class Client {
     private ClientLoginHandler clientLoginHandler;
     private ClientRegistrationHandler clientRegistrationHandler;
     private ClientStudentHandler clientStudentHandler;
+    private ClientInstructorHandler clientInstructorHandler;
+
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
 
@@ -20,38 +22,40 @@ public class Client {
         clientLoginHandler = new ClientLoginHandler(toServer, fromServer);
         clientRegistrationHandler = new ClientRegistrationHandler(toServer, fromServer);
         clientStudentHandler = new ClientStudentHandler(toServer, fromServer);
+        clientInstructorHandler = new ClientInstructorHandler(toServer, fromServer);
 
         System.out.println("Connected to " + host + " at port = " + port);
         start();
     }
 
     public void start() throws IOException {
-        boolean loggedIn = false;
         do {
-            responseMainMenu();
-            Scanner scan = new Scanner(System.in);
-            int choice = scan.nextInt();
-            toServer.writeInt(choice);
+            boolean loggedIn = false;
+            do {
+                responseMainMenu();
+                Scanner scan = new Scanner(System.in);
+                int choice = scan.nextInt();
+                toServer.writeInt(choice);
 
-            if (choice == 1) {
-                loggedIn = clientLoginHandler.login();
-            } else if (choice == 2) {
-                clientRegistrationHandler.register();
+                if (choice == 1) {
+                    loggedIn = clientLoginHandler.login();
+                } else if (choice == 2) {
+                    clientRegistrationHandler.register();
+                } else {
+                    toServer.flush();
+                    return;
+                }
+            } while (loggedIn == false);
+
+
+            // I have the account (Logged in)
+            String role = fromServer.readUTF();
+            if (role.equals("Student")) {
+                clientStudentHandler.handleStudent();
             } else {
-                toServer.flush();
-                return;
+                clientInstructorHandler.handleInstructor();
             }
-        } while (loggedIn == false);
-
-
-        // I have the account (Logged in)
-        String role = fromServer.readUTF();
-        if (role.equals("Student")) {
-            clientStudentHandler.handleStudent();
-        } else {
-            responseInstructorHandler();
-        }
-        toServer.flush();
+        } while (true);
     }
 
     public void responseMainMenu() throws IOException {
@@ -61,15 +65,7 @@ public class Client {
         System.out.println(fromServer.readUTF()); // exit
     }
 
-
-
-    private void responseInstructorHandler() {
-
-    }
-
     public static void main(String[] args) throws IOException {
         Client client = new Client("localhost", 8080);
-
-
     }
 }
