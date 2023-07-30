@@ -5,6 +5,8 @@ import util.InputValidator;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientAdminHandler {
@@ -66,7 +68,7 @@ public class ClientAdminHandler {
     private void handleAddingNewDepartment() throws IOException {
         System.out.println(fromServer.readUTF());
         System.out.println(fromServer.readUTF());
-        String newDepartmentName = inputValidator.getValidString();
+        String newDepartmentName = inputValidator.getValidString(new ArrayList<>() {{}});
         toServer.writeUTF(newDepartmentName);
         System.out.println(fromServer.readUTF());
     }
@@ -80,7 +82,7 @@ public class ClientAdminHandler {
         int selectedDepartmentId = inputValidator.getValidInteger(1, numberOfDepartments) - 1;
         toServer.writeInt(selectedDepartmentId);
         System.out.println(fromServer.readUTF());
-        String newCourseName = inputValidator.getValidString();
+        String newCourseName = inputValidator.getValidString(new ArrayList<>() {{}});
         toServer.writeUTF(newCourseName);
         System.out.println(fromServer.readUTF());
     }

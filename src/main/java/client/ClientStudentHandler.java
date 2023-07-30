@@ -1,5 +1,7 @@
 package client;
 
+import util.InputValidator;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,21 +10,23 @@ import java.util.Scanner;
 public class ClientStudentHandler {
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
-
+    private InputValidator inputValidator;
+    int menuSize;
     public ClientStudentHandler(DataOutputStream toServer, DataInputStream fromServer) {
         this.toServer = toServer;
         this.fromServer = fromServer;
+        inputValidator = new InputValidator();
+        menuSize = 6;
     }
     public void handleStudent() throws IOException {
         System.out.println(fromServer.readUTF());
         responseStudentHandler();
     }
     private void responseStudentHandler() throws IOException {
-        Scanner scan = new Scanner(System.in);
         int choice = 0;
         do {
             responseStudentMenu();
-            choice = scan.nextInt();
+            choice = inputValidator.getValidInteger(1, menuSize);
             toServer.writeInt(choice);
             if (choice == 1) {
                 handleDisplayingStudentInformation();
@@ -52,21 +56,20 @@ public class ClientStudentHandler {
         handleShowingAllCoursesWithTeachers();
     }
     private void handleShowingAllCoursesWithTeachers() throws IOException {
-        Scanner scan = new Scanner(System.in);
         System.out.println(fromServer.readUTF());
         int numberOfCourses = fromServer.readInt();
         for (int i = 0; i < numberOfCourses; i++) {
             System.out.println(fromServer.readUTF());
         }
 
-        int selectedCourseId = scan.nextInt();
+        int selectedCourseId = inputValidator.getValidInteger(1, numberOfCourses) - 1;
         toServer.writeInt(selectedCourseId);
         System.out.println(fromServer.readUTF());
         int numberOfInstructors = fromServer.readInt();
         for (int i = 0; i < numberOfInstructors; i++) {
             System.out.println(fromServer.readUTF());
         }
-        int selectedInstructorId = scan.nextInt();
+        int selectedInstructorId = inputValidator.getValidInteger(1, numberOfInstructors) - 1;
         toServer.writeInt(selectedInstructorId);
 
         System.out.println(fromServer.readUTF());
@@ -74,25 +77,23 @@ public class ClientStudentHandler {
     }
 
     private void handleWithdrawingFromCourse() throws IOException {
-        Scanner scan = new Scanner(System.in);
         System.out.println(fromServer.readUTF());
         int numberOfCourses = fromServer.readInt();
         for (int i = 0; i < numberOfCourses; i++) {
             System.out.println(fromServer.readUTF());
         }
-        int selectedCourseId = scan.nextInt();
+        int selectedCourseId = inputValidator.getValidInteger(1, numberOfCourses) - 1;
         toServer.writeInt(selectedCourseId);
         System.out.println(fromServer.readUTF());
     }
 
     private void viewCourseGrade() throws IOException {
-        Scanner scan = new Scanner(System.in);
         System.out.println(fromServer.readUTF());
         int numberOfCourses = fromServer.readInt();
         for (int i = 0; i < numberOfCourses; i++) {
             System.out.println(fromServer.readUTF());
         }
-        int selectedCourseId = scan.nextInt();
+        int selectedCourseId = inputValidator.getValidInteger(1, numberOfCourses) - 1;
         toServer.writeInt(selectedCourseId);
         System.out.println(fromServer.readUTF());
     }

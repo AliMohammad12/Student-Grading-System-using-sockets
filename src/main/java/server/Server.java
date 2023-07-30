@@ -104,7 +104,7 @@ public class Server {
                         int choice = inputFromClient.readInt();
                         if (choice == 1) {
                             account = loginHandler.login();
-                            loggedIn = true;
+                            if (account != null) loggedIn = true;
                         } else if (choice == 2) {
                             registrationHandler.register();
                         } else {

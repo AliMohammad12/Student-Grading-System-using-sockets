@@ -1,17 +1,23 @@
 package client;
 
+import util.InputValidator;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ClientRegistrationHandler {
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
+    private InputValidator inputValidator;
+
 
     public ClientRegistrationHandler(DataOutputStream toServer, DataInputStream fromServer) {
         this.toServer = toServer;
         this.fromServer = fromServer;
+        inputValidator = new InputValidator();
     }
     public void register() throws IOException {
         responseRegistration();
@@ -19,18 +25,17 @@ public class ClientRegistrationHandler {
     private void responseRegistration() throws IOException {
         boolean success = false;
         do {
-            Scanner scan = new Scanner(System.in);
             System.out.println(fromServer.readUTF());
             System.out.println(fromServer.readUTF());
-            String email = scan.next();
+            String email = inputValidator.getValidString(new ArrayList<>() {{}});
             toServer.writeUTF(email);
             System.out.println(fromServer.readUTF());
-            String password = scan.next();
+            String password = inputValidator.getValidString(new ArrayList<>() {{}});
             toServer.writeUTF(password);
             System.out.println(fromServer.readUTF());
             System.out.println(fromServer.readUTF());
             System.out.println(fromServer.readUTF());
-            int role = scan.nextInt();
+            int role = inputValidator.getValidInteger(1, 2);
             toServer.writeInt(role);
             //..............
             boolean isEmailValid = fromServer.readBoolean();
@@ -38,7 +43,7 @@ public class ClientRegistrationHandler {
                 System.out.println(fromServer.readUTF());
                 System.out.println(fromServer.readUTF());
                 System.out.println(fromServer.readUTF());
-                int choice = scan.nextInt();
+                int choice = inputValidator.getValidInteger(1, 2);
                 toServer.writeInt(choice);
                 if (choice == 2) return;
                 continue;
@@ -51,7 +56,7 @@ public class ClientRegistrationHandler {
                 System.out.println(fromServer.readUTF());
                 System.out.println(fromServer.readUTF());
                 System.out.println(fromServer.readUTF());
-                int choice = scan.nextInt();
+                int choice = inputValidator.getValidInteger(1, 2);
                 toServer.writeInt(choice);
                 if (choice == 2) return;
             }
@@ -67,36 +72,34 @@ public class ClientRegistrationHandler {
     }
 
     private void responseStudentRegistration() throws IOException {
-        Scanner scan = new Scanner(System.in);
         System.out.println(fromServer.readUTF());
         System.out.println(fromServer.readUTF()); // first name
-        String firstName = scan.next();
+        String firstName = inputValidator.getValidString(new ArrayList<>() {{}});
         toServer.writeUTF(firstName);
 
         System.out.println(fromServer.readUTF()); // last name
-        String lastName = scan.next();
+        String lastName = inputValidator.getValidString(new ArrayList<>() {{}});
         toServer.writeUTF(lastName);
 
         System.out.println(fromServer.readUTF()); // Major
-        String major = scan.next();
+        String major = inputValidator.getValidString(new ArrayList<>() {{}});
         toServer.writeUTF(major);
 
         System.out.println(fromServer.readUTF()); // Academic Year
-        int academicYear = scan.nextInt();
+        int academicYear = inputValidator.getValidInteger(1, 5);
         toServer.writeInt(academicYear);
 
         System.out.println(fromServer.readUTF());
     }
 
     private void responseInstructorRegistration() throws IOException {
-        Scanner scan = new Scanner(System.in);
         System.out.println(fromServer.readUTF());
         System.out.println(fromServer.readUTF()); // first name
-        String firstName = scan.next();
+        String firstName = inputValidator.getValidString(new ArrayList<>() {{}});
         toServer.writeUTF(firstName);
 
         System.out.println(fromServer.readUTF()); // last name
-        String lastName = scan.next();
+        String lastName = inputValidator.getValidString(new ArrayList<>() {{}});
         toServer.writeUTF(lastName);
 
         System.out.println(fromServer.readUTF()); // please select index
@@ -104,7 +107,7 @@ public class ClientRegistrationHandler {
         for (int i = 0; i < numberOfDepartments; i++) {
             System.out.println(fromServer.readUTF());
         }
-        int chosenIndex = scan.nextInt();
+        int chosenIndex = inputValidator.getValidInteger(1, numberOfDepartments) - 1;
         toServer.writeInt(chosenIndex);
         System.out.println(fromServer.readUTF());
     }

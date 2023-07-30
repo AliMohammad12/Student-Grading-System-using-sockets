@@ -89,7 +89,7 @@ public class ServerStudentHandler {
         }
     }
     private int selectedCourseId() throws IOException {
-        return inputFromClient.readInt() - 1;
+        return inputFromClient.readInt();
     }
 
     private void showAllInstructorsOfCourse(List<Instructor> instructors) throws IOException {
@@ -102,7 +102,7 @@ public class ServerStudentHandler {
     }
 
     private int selectedInstructorId() throws IOException {
-        return inputFromClient.readInt() - 1;
+        return inputFromClient.readInt();
     }
 
     private void withdrawFromCourse(Student student) throws IOException {
@@ -114,7 +114,7 @@ public class ServerStudentHandler {
             Course course = courseEnrollmentList.get(i).getCourse();
             outputToClient.writeUTF((i + 1) + ": " + course.toString());
         }
-        int selectedCourseId = inputFromClient.readInt() - 1;
+        int selectedCourseId = inputFromClient.readInt();
         CourseEnrollment courseEnrollment = courseEnrollmentList.get(selectedCourseId);
         Course withdrawnCourse = courseEnrollment.getCourse();
         courseService.deleteStudentCourse(student.getStudentId(), withdrawnCourse.getCourseId());
@@ -131,7 +131,7 @@ public class ServerStudentHandler {
             Course course = courseEnrollmentList.get(i).getCourse();
             outputToClient.writeUTF((i + 1) + ": " + course.toString());
         }
-        int selectedCourseId = inputFromClient.readInt() - 1;
+        int selectedCourseId = inputFromClient.readInt();
         CourseEnrollment courseEnrollment = courseEnrollmentList.get(selectedCourseId);
         outputToClient.writeUTF("[Server] Your grade is for " + courseEnrollment.getCourse().getCourseName() + " is " + courseEnrollment.getGrade());
     }

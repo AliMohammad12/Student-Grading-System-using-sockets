@@ -83,7 +83,7 @@ public class ServerInstructorHandler {
     }
     private int selectCourseIdToTeach() throws IOException { // option 3
         outputToClient.writeUTF("\n[Server] Please enter the id of the course you want to teach: ");
-        return inputFromClient.readInt() - 1;
+        return inputFromClient.readInt();
     }
     private void removeCourseFromInstructor(Instructor instructor) throws IOException { // option 4
         List<Course> instructorCourses = getInstructorCourses(instructor);
@@ -95,7 +95,7 @@ public class ServerInstructorHandler {
     }
     private int selectCourseIdToRemove() throws IOException { // option 4
         outputToClient.writeUTF("[Server] Please enter the id of the course you want to withdraw from: ");
-        return inputFromClient.readInt() - 1;
+        return inputFromClient.readInt();
     }
     private void updateStudentsGrades(Instructor instructor) throws IOException { // option 5
         List<Course> instructorCourses = getInstructorCourses(instructor);
@@ -114,7 +114,7 @@ public class ServerInstructorHandler {
     }
     private int selectIdOfTheCourse() throws IOException {
         outputToClient.writeUTF("[Server] Please enter the id of the course: ");
-        return inputFromClient.readInt() - 1;
+        return inputFromClient.readInt();
     }
     private List<Student> getStudentsOfTheSelectedCourse(Course course, Instructor instructor) throws IOException {
         return studentService.findStudentsByCourseAndInstructor(course, instructor);
@@ -131,7 +131,7 @@ public class ServerInstructorHandler {
     }
     private int selectIdOfStudent() throws IOException {
         outputToClient.writeUTF("[Server] Please enter the id of the student you want to update their grade: ");
-        return inputFromClient.readInt() - 1;
+        return inputFromClient.readInt();
     }
     private void displayStudentSelection(Student student) throws IOException {
         outputToClient.writeUTF("[Server] You selected student " + student.getFirstName() + " " + student.getLastName());

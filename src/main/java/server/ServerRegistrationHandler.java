@@ -134,7 +134,7 @@ public class ServerRegistrationHandler {
         for (int i = 0; i < departmentList.size(); i++) {
             outputToClient.writeUTF((i + 1) + ": " + departmentList.get(i).getName());
         }
-        int selectedIndex = inputFromClient.readInt() - 1;
+        int selectedIndex = inputFromClient.readInt();
         Department selectedDepartment = departmentList.get(selectedIndex);
 
         Instructor instructor = new Instructor(firstName, lastName, selectedDepartment, email, accountId);

@@ -128,7 +128,7 @@ public class ServerAdminHandler {
             Department department = departmentList.get(i);
             outputToClient.writeUTF((i + 1) + ": " + department.getName());
         }
-        int selectedDepartmentId = inputFromClient.readInt() - 1;
+        int selectedDepartmentId = inputFromClient.readInt();
         Department department = departmentList.get(selectedDepartmentId);
         outputToClient.writeUTF("[Server] Enter the name of the new course: ");
         String newCourseName = inputFromClient.readUTF();
@@ -148,13 +148,11 @@ public class ServerAdminHandler {
             outputToClient.writeUTF((i + 1) + ": " + department.getName());
         }
         outputToClient.writeUTF("[Server] Please enter department Id from the list above to delete: ");
-        int departmentIdToDelete = inputFromClient.readInt() - 1;
+        int departmentIdToDelete = inputFromClient.readInt() ;
         Department departmentToDelete = departmentList.get(departmentIdToDelete);
 
         // delete courses and instructors with same department
         int departmentId = departmentToDelete.getId();
-//        courseService.deleteCourseByDepartmentId(departmentId);
-//        instructorService.deleteInstructorByDepartmentId(departmentId);
         departmentService.deleteDepartment(departmentId);
         outputToClient.writeUTF("[Server] You have successfully deleted " + departmentToDelete.getName());
     }
@@ -170,12 +168,10 @@ public class ServerAdminHandler {
             outputToClient.writeUTF((i + 1) + ": Name: " + course.getCourseName() + " | Department: " + course.getDepartment().getName());
         }
         outputToClient.writeUTF("[Server] Please enter course Id from the list above to delete: ");
-        int courseIdToDelete = inputFromClient.readInt() - 1;
+        int courseIdToDelete = inputFromClient.readInt();
         Course courseToDelete = courseList.get(courseIdToDelete);
 
         int courseId = courseToDelete.getCourseId();
-//        courseService.deleteStudentCoursesByCourseId(courseId);
-//        courseService.deleteInstructorCoursesByCourseId(courseId);
         courseService.deleteCourse(courseId);
         outputToClient.writeUTF("[Server] You have successfully deleted " + courseToDelete.getCourseName());
     }
@@ -192,7 +188,7 @@ public class ServerAdminHandler {
                     + " | Email: " + student.getEmail() + " | Major: " + student.getMajor() + " | Academic year: " + student.getAcademicYear());
         }
         outputToClient.writeUTF("[Server] Please enter student Id from the list above to delete: ");
-        int studentIdToDelete = inputFromClient.readInt() - 1;
+        int studentIdToDelete = inputFromClient.readInt();
         Student studentToDelete = studentList.get(studentIdToDelete);
         int accountId = studentToDelete.getAccountId();
 
@@ -214,7 +210,7 @@ public class ServerAdminHandler {
                     + " | Email: " + instructor.getEmail() + " | Department: " + instructor.getDepartment().getName());
         }
         outputToClient.writeUTF("[Server] Please enter instructor Id from the list above to delete: ");
-        int instructorIdToDelete = inputFromClient.readInt() - 1;
+        int instructorIdToDelete = inputFromClient.readInt();
         Instructor instructorToDelete = instructorList.get(instructorIdToDelete);
         int accountId = instructorToDelete.getAccountId();
         int instructorId = instructorToDelete.getInstructorId();

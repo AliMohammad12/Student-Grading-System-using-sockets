@@ -30,7 +30,6 @@ public class ServerLoginHandler {
             String email = inputFromClient.readUTF();
             outputToClient.writeUTF("- Please enter your password: ");
             String password = inputFromClient.readUTF();
-
             boolean found = accountService.emailExists(email);
             boolean success = false;
             if (found) {

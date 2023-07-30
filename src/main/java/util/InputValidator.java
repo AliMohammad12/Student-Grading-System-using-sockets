@@ -1,6 +1,7 @@
 package util;
 
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class InputValidator {
@@ -16,7 +17,7 @@ public class InputValidator {
                 if (value >= from && value <= to) {
                     break;
                 } else {
-                    System.out.println("Out of bounds. Please enter an integer within the specified range.");
+                    System.out.println("Please enter an integer within [" + from + ", " + to + "]");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input format. Please enter a valid integer.");
@@ -25,8 +26,24 @@ public class InputValidator {
         }
         return value;
     }
-    public String getValidString() {
-        return scanner.nextLine();
+    public String getValidString(List<String> validStrings) {
+        String userInput;
+        while (true) {
+            userInput = scanner.next();
+            if (validStrings != null && !validStrings.isEmpty()) {
+                if (validStrings.contains(userInput)) {
+                    break;
+                } else {
+                    System.out.println("-Invalid input. Please enter one of the valid options:");
+                    System.out.print("-Valid options: ");
+                    for (int i = 0; i < validStrings.size(); i++) System.out.print(validStrings.get(i) + " ");
+                    System.out.println();
+                }
+            } else {
+                break;
+            }
+        }
+        return userInput;
     }
 
     public void closeScanner() {
