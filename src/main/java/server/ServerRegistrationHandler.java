@@ -39,7 +39,7 @@ public class ServerRegistrationHandler {
 
     private void handleRegistration() throws IOException {
         boolean success = false;
-        String role = "";
+        int role = 0;
         int accountId = -1;
         String email = "";
         do {
@@ -48,8 +48,11 @@ public class ServerRegistrationHandler {
             email = inputFromClient.readUTF();
             outputToClient.writeUTF("- Password: ");
             String password = inputFromClient.readUTF();
-            outputToClient.writeUTF("- Are you registering as Student or Instructor ? ");
-            role = inputFromClient.readUTF();
+
+            outputToClient.writeUTF("[Server] What are you registering as ? ");
+            outputToClient.writeUTF("1- Student");
+            outputToClient.writeUTF("2- Instructor");
+            role = inputFromClient.readInt();
             // ............
 
             boolean isEmailValid = isEmailValid(email);
@@ -68,7 +71,7 @@ public class ServerRegistrationHandler {
 
             if (isEmailUnique) {
                 String hashedPassword = PasswordHasher.hashPassword(password);
-                Account account = new Account(email, hashedPassword, role);
+                Account account = new Account(email, hashedPassword, (role == 1 ? "Student" : "Instructor"));
                 accountService.createAccount(account);
                 outputToClient.writeUTF("[Server] You have registered a new account successfully!");
                 accountId = accountService.getAccountIdByEmail(email);
@@ -83,8 +86,8 @@ public class ServerRegistrationHandler {
 
         } while (success == false);
 
-        outputToClient.writeUTF(role);
-        if (role.equals("Student")) {
+        outputToClient.writeInt(role);
+        if (role == 1) {
             handleStudentRegistration(accountId, email);
         } else {
             handleInstructorRegistration(accountId, email);
@@ -132,7 +135,7 @@ public class ServerRegistrationHandler {
             outputToClient.writeUTF((i + 1) + ": " + departmentList.get(i).getName());
         }
         int selectedIndex = inputFromClient.readInt() - 1;
-        String selectedDepartment = departmentList.get(selectedIndex).getName();
+        Department selectedDepartment = departmentList.get(selectedIndex);
 
         Instructor instructor = new Instructor(firstName, lastName, selectedDepartment, email, accountId);
         instructorService.createInstructor(instructor);

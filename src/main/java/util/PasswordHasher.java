@@ -5,7 +5,7 @@ import de.mkammerer.argon2.Argon2Factory;
 
 public class PasswordHasher {
     private static final int SALT_LENGTH = 16;
-    private static final int HASH_LENGTH = 32;
+    private static final int HASH_LENGTH = 4;
     private static final int ITERATIONS = 3;
     private static final int MEMORY = 65536;
     private static final int PARALLELISM = 1;

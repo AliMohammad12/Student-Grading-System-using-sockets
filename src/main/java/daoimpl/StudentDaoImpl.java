@@ -56,6 +56,7 @@ public class StudentDaoImpl implements StudentDao {
                 }
             }
         } catch (SQLException e) {
+            System.out.println("Sorry, we encountered an issue while creating your request. Please try again later.");
             e.printStackTrace();
         }
         return null;
@@ -94,16 +95,38 @@ public class StudentDaoImpl implements StudentDao {
                 }
             }
         } catch (SQLException e) {
+            System.out.println("Sorry, we encountered an issue while creating your request. Please try again later.");
             e.printStackTrace();
         }
         return studentList;
     }
-
-    public Student getStudentById(int studentId) {
-        return null;
-    }
-
     public List<Student> getAllStudents() {
+        String query = "select id, first_name, last_name, email, major, academic_year, account_id from student";
+        List<Student> studentList = new ArrayList<>();
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String firstName = resultSet.getString("first_name");
+                String lastName = resultSet.getString("last_name");
+                String email = resultSet.getString("email");
+                String major = resultSet.getString("major");
+                int academicYear = resultSet.getInt("academic_year");
+                int accountId = resultSet.getInt("account_id");
+
+                Student student = new Student(firstName, lastName, major, academicYear, email, accountId);
+                student.setStudentId(id);
+                studentList.add(student);
+            }
+        } catch (SQLException e) {
+            System.out.println("Sorry, we encountered an issue while creating your request. Please try again later.");
+            e.printStackTrace();
+        }
+        return studentList;
+    }
+    public Student getStudentById(int studentId) {
         return null;
     }
 
@@ -116,6 +139,14 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     public void deleteStudent(int studentId) {
-
+        String query = "DELETE FROM student WHERE id = ?";
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, studentId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

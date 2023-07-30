@@ -10,6 +10,5 @@ public interface InstructorDao {
     Instructor getInstructorByAccountId(int accountId);
     List<Instructor> getAllInstructors();
     List<Instructor> getInstructorsByDepartment(int departmentId);
-    void updateInstructor(Instructor instructor);
     void deleteInstructor(int instructorId);
 }

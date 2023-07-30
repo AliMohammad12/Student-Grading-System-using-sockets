@@ -3,21 +3,21 @@ package model;
 public class Instructor {
     private String firstName;
     private String lastName;
-    private String departmentName;
+    private Department department;
     private String email;
     private int accountId;
     private int instructorId;
-    public Instructor(String firstName, String lastName, String departmentName, String email) {
+    public Instructor(String firstName, String lastName, Department department, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.departmentName = departmentName;
+        this.department = department;
         this.email = email;
     }
 
-    public Instructor(String firstName, String lastName, String departmentName, String email, int accountId) {
+    public Instructor(String firstName, String lastName, Department department, String email, int accountId) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.departmentName = departmentName;
+        this.department = department;
         this.email = email;
         this.accountId = accountId;
     }
@@ -36,14 +36,6 @@ public class Instructor {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
     }
 
     public int getAccountId() {
@@ -65,6 +57,15 @@ public class Instructor {
     public int getInstructorId() {
         return instructorId;
     }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
     public void setInstructorId(int instructorId) {
         this.instructorId = instructorId;
     }
@@ -72,7 +73,7 @@ public class Instructor {
     @Override
     public String toString() {
         String ret = "";
-        ret += "Name: " + firstName + " " + lastName +  " | Email: " + email + " | Department: " + departmentName;
+        ret += "Name: " + firstName + " " + lastName +  " | Email: " + email + " | Department: " + department.getName();
         return ret;
     }
 }

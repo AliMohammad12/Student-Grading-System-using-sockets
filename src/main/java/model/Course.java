@@ -6,11 +6,11 @@ import java.util.Objects;
 public class Course {
     private int courseId;
     private String courseName;
-    private String departmentName;
+    private Department department;
 
-    public Course(String courseName, String departmentName) {
+    public Course(String courseName, Department department) {
         this.courseName = courseName;
-        this.departmentName = departmentName;
+        this.department = department;
     }
     public String getCourseName() {
         return courseName;
@@ -20,12 +20,12 @@ public class Course {
         this.courseName = courseName;
     }
 
-    public String getDepartmentName() {
-        return departmentName;
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
     public int getCourseId() {
@@ -40,7 +40,7 @@ public class Course {
     public String toString() {
         String ret = "";
         ret += "-Name: " + courseName;
-        ret += "  |  Department: " + departmentName;
+        ret += "  |  Department: " + department.getName();
         return ret;
     }
 
@@ -54,6 +54,6 @@ public class Course {
 
     @Override
     public int hashCode() {
-        return Objects.hash(courseName, departmentName);
+        return Objects.hash(courseName, department);
     }
 }

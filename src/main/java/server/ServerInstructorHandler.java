@@ -85,8 +85,6 @@ public class ServerInstructorHandler {
         outputToClient.writeUTF("\n[Server] Please enter the id of the course you want to teach: ");
         return inputFromClient.readInt() - 1;
     }
-
-
     private void removeCourseFromInstructor(Instructor instructor) throws IOException { // option 4
         List<Course> instructorCourses = getInstructorCourses(instructor);
         displayInstructorCourses(instructorCourses);
@@ -99,7 +97,6 @@ public class ServerInstructorHandler {
         outputToClient.writeUTF("[Server] Please enter the id of the course you want to withdraw from: ");
         return inputFromClient.readInt() - 1;
     }
-
     private void updateStudentsGrades(Instructor instructor) throws IOException { // option 5
         List<Course> instructorCourses = getInstructorCourses(instructor);
         displayInstructorCourses(instructorCourses);

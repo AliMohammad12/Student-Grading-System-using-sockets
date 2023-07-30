@@ -7,6 +7,7 @@ import model.Course;
 import model.Instructor;
 import model.Student;
 import service.*;
+import util.PasswordHasher;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -21,11 +22,11 @@ public class Server {
     private DepartmentService departmentService;
     private InstructorService instructorService;
     private StudentService studentService;
-    private CourseEnrollmentService courseEnrollmentService;
     private ServerLoginHandler loginHandler;
     private ServerRegistrationHandler registrationHandler;
     private ServerStudentHandler serverStudentHandler;
     private ServerInstructorHandler serverInstructorHandler;
+    private ServerAdminHandler serverAdminHandler;
     private DataInputStream inputFromClient = null;
     private DataOutputStream outputToClient = null;
     public Server() {
@@ -34,14 +35,12 @@ public class Server {
         DepartmentDao departmentDao = new DepartmentDaoImpl();
         InstructorDao instructorDao = new InstructorDaoImpl();
         StudentDao studentDao = new StudentDaoImpl();
-        CourseEnrollmentDao courseEnrollmentDao = new CourseEnrollmentDaoImpl();
 
         accountService = new AccountService(accountDao);
         courseService = new CourseService(courseDao);
         departmentService = new DepartmentService(departmentDao);
         instructorService = new InstructorService(instructorDao);
         studentService = new StudentService(studentDao);
-        courseEnrollmentService = new CourseEnrollmentService(courseEnrollmentDao);
 
         loginHandler = new ServerLoginHandler(accountService);
 
@@ -50,6 +49,7 @@ public class Server {
 
         serverStudentHandler = new ServerStudentHandler(studentService, courseService);
         serverInstructorHandler = new ServerInstructorHandler(instructorService, courseService, studentService);
+        serverAdminHandler = new ServerAdminHandler(instructorService, studentService, courseService, accountService, departmentService);
     }
     public void startServer(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -82,6 +82,9 @@ public class Server {
 
         serverInstructorHandler.setInputFromClient(inputFromClient);
         serverInstructorHandler.setOutputToClient(outputToClient);
+
+        serverAdminHandler.setInputFromClient(inputFromClient);
+        serverAdminHandler.setOutputToClient(outputToClient);
     }
 
     private class ClientHandler extends Thread {
@@ -110,13 +113,14 @@ public class Server {
                         }
                     } while (loggedIn == false);
 
-                    // I have the account (Logged in)
                     String role = account.getRole();
                     outputToClient.writeUTF(role);
                     if (role.equals("Student")) {
                         serverStudentHandler.handleStudent(account);
-                    } else {
+                    } else if (role.equals("Instructor")){
                         serverInstructorHandler.handleInstructor(account);
+                    } else if (role.equals("ADMIN")) {
+                        serverAdminHandler.handleAdmin();
                     }
                 } while (true);
             } catch(IOException e){
@@ -131,42 +135,20 @@ public class Server {
             outputToClient.writeUTF("3. Exit");
 
         }
-
-
-
     }
 
-
     public static void main( String[] args ) {
-
-//        Course course1 = new Course("ABC", "123");
-//        Course course2 = new Course("ABC", "123");
-//        Course course3 = new Course("ABC", "4");
-//          CourseDao courseDao = new CourseDaoImpl();
-//          CourseService courseService1 = new CourseService(courseDao);
-//          courseService1.getCourseDetailsWithInstructors();
+//        String password = "ADMIN";
+//        String hashedPassword = PasswordHasher.hashPassword(password);
+//        System.out.println(hashedPassword);
+//        Account account = new Account("ADMIN", hashedPassword, "ADMIN");
+//        AccountDao accountDao = new AccountDaoImpl();
+//        AccountService accountService = new AccountService(accountDao);
+//        accountService.createAccount(account);
         int port = 8080;
         Server server = new Server();
         server.startServer(port);
 
-//        InstructorDao instructorDao = new InstructorDaoImpl();
-//        InstructorService instructorService = new InstructorService(instructorDao);
-//
-//        Instructor inst = new Instructor("Ali", " OMARRR ", "COMPUTER ENGINEERING", 3);
-//        instructorService.createInstructor(inst);
 
-//        System.out.println( "Hello World!" );
-//        AccountDao accountDao = new AccountDaoImpl();
-//        AccountService accountService = new AccountService(accountDao);
-////
-//        String email = "ahmad@gmail.com";
-//        String password = "12321";
-//      //  accountDao.createAccount(acco unt);
-//        String hashed = PasswordHasher.hashPassword(password);
-//        Account account = new Account(email, hashed, "Student");
-//        accountService.createAccount(account);
-//
-//        System.out.println(hashed);
-//        System.out.println(password);
     }
 }

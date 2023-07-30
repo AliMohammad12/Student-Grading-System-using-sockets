@@ -24,7 +24,7 @@ public class ServerLoginHandler {
     private Account handleLoggingIn() throws IOException {
         outputToClient.writeUTF("[Server] Signing In!");
         boolean loggedIn = false;
-        Account account = null  ;
+        Account account = null;
         while (!loggedIn) {
             outputToClient.writeUTF("- Please enter your email: ");
             String email = inputFromClient.readUTF();
@@ -57,7 +57,6 @@ public class ServerLoginHandler {
     public void setInputFromClient(DataInputStream inputFromClient) {
         this.inputFromClient = inputFromClient;
     }
-
     public void setOutputToClient(DataOutputStream outputToClient) {
         this.outputToClient = outputToClient;
     }

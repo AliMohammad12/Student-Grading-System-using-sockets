@@ -28,7 +28,6 @@ public class StudentService {
         return studentDao.getAllStudents();
     }
     public List<Student> getStudentsByMajor(String major) {
-
         return studentDao.getStudentsByMajor(major);
     }
     public void updateStudent(Student student) {

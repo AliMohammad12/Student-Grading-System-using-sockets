@@ -85,11 +85,11 @@ public class Student {
     public String toString() {
         String ret;
         ret = "Your Student Information: \n";
-        ret += "First Name: " + firstName + "\n";
-        ret += "Last Name: " + lastName + "\n";
-        ret += "Major: " + major + "\n";
-        ret += "Academic Year: " + academicYear + "\n";
-        ret += "email: " + email;
+        ret += "-First Name: " + firstName + "\n";
+        ret += "-Last Name: " + lastName + "\n";
+        ret += "-Major: " + major + "\n";
+        ret += "-Academic Year: " + academicYear + "\n";
+        ret += "-email: " + email;
         return ret;
     }
 }

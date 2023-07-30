@@ -28,8 +28,10 @@ public class ClientRegistrationHandler {
             String password = scan.next();
             toServer.writeUTF(password);
             System.out.println(fromServer.readUTF());
-            String role = scan.next();
-            toServer.writeUTF(role);
+            System.out.println(fromServer.readUTF());
+            System.out.println(fromServer.readUTF());
+            int role = scan.nextInt();
+            toServer.writeInt(role);
             //..............
             boolean isEmailValid = fromServer.readBoolean();
             if (!isEmailValid) {
@@ -56,8 +58,8 @@ public class ClientRegistrationHandler {
 
         } while (success == false);
 
-        String role = fromServer.readUTF();
-        if (role.equals("Student")) {
+        int role = fromServer.readInt();
+        if (role == 1) {
             responseStudentRegistration();
         } else {
             responseInstructorRegistration();

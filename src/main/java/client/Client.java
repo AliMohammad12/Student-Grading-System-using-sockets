@@ -1,5 +1,7 @@
 package client;
 
+import util.InputValidator;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
@@ -10,10 +12,11 @@ public class Client {
     private ClientRegistrationHandler clientRegistrationHandler;
     private ClientStudentHandler clientStudentHandler;
     private ClientInstructorHandler clientInstructorHandler;
-
+    private ClientAdminHandler clientAdminHandler;
+    private InputValidator inputValidator;
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
-
+    private int menuSize;
     public Client(String host, int port) throws IOException {
         socket = new Socket(host, port);
 
@@ -23,6 +26,9 @@ public class Client {
         clientRegistrationHandler = new ClientRegistrationHandler(toServer, fromServer);
         clientStudentHandler = new ClientStudentHandler(toServer, fromServer);
         clientInstructorHandler = new ClientInstructorHandler(toServer, fromServer);
+        clientAdminHandler = new ClientAdminHandler(toServer, fromServer);
+        inputValidator = new InputValidator();
+        menuSize = 3;
 
         System.out.println("Connected to " + host + " at port = " + port);
         start();
@@ -33,8 +39,7 @@ public class Client {
             boolean loggedIn = false;
             do {
                 responseMainMenu();
-                Scanner scan = new Scanner(System.in);
-                int choice = scan.nextInt();
+                int choice = inputValidator.getValidInteger(1, menuSize);
                 toServer.writeInt(choice);
 
                 if (choice == 1) {
@@ -47,13 +52,13 @@ public class Client {
                 }
             } while (loggedIn == false);
 
-
-            // I have the account (Logged in)
             String role = fromServer.readUTF();
             if (role.equals("Student")) {
                 clientStudentHandler.handleStudent();
-            } else {
+            } else if (role.equals("Instructor")){
                 clientInstructorHandler.handleInstructor();
+            } else if (role.equals("ADMIN")) {
+                clientAdminHandler.handleAdmin();
             }
         } while (true);
     }

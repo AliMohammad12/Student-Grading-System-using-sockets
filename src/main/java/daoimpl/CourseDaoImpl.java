@@ -19,6 +19,17 @@ public class CourseDaoImpl implements CourseDao {
     }
 
     public void createCourse(Course course) {
+        String query = "INSERT INTO course (department_id, course_name) VALUES (?, ?)";
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, course.getDepartment().getId());
+            statement.setString(2, course.getCourseName());
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Sorry, we encountered an issue while creating your request. Please try again later.");
+        }
     }
     public Course getCourseById(int courseId) {
         return null;
@@ -28,16 +39,17 @@ public class CourseDaoImpl implements CourseDao {
         String query = "SELECT " +
                 "c.id AS Course_ID, " +
                 "c.course_name AS Course_Name, " +
+                "c.department_id AS Department_ID, " +
                 "i.first_name AS First_Name, " +
                 "i.last_name AS Last_Name, " +
                 "i.email AS Instructor_Email, " +
-                "i.department_name AS Department_Name, " +
+                "d.department_name AS Department_Name, " +
                 "i.account_id AS Account_ID, " +
                 "i.id AS Instructor_ID " +
                 "FROM course c " +
                 "JOIN instructor_courses ic ON c.id = ic.course_id " +
-                "JOIN instructor i ON ic.instructor_id = i.id";
-
+                "JOIN instructor i ON ic.instructor_id = i.id " +
+                "JOIN department d ON i.department_id = d.id";
 
         Map<Course, List<Instructor>> coursesWithInstructors = new HashMap<>();
         try (Connection connection = getConnection();
@@ -47,6 +59,7 @@ public class CourseDaoImpl implements CourseDao {
             while (resultSet.next()) {
                 int courseId = resultSet.getInt("Course_ID");
                 String courseName = resultSet.getString("Course_Name");
+                int departmentId = resultSet.getInt("Department_ID");
                 String firstName = resultSet.getString("First_Name");
                 String lastName = resultSet.getString("Last_Name");
                 String instructorEmail = resultSet.getString("Instructor_Email");
@@ -54,9 +67,12 @@ public class CourseDaoImpl implements CourseDao {
                 int accountId = resultSet.getInt("Account_ID");
                 int instructorId = resultSet.getInt("Instructor_ID");
 
-                Instructor courseInstructor = new Instructor(firstName, lastName, departmentName, instructorEmail);
-                Course course = new Course(courseName, departmentName);
+                Department department = new Department(departmentName);
+                department.setId(departmentId);
+                Instructor courseInstructor = new Instructor(firstName, lastName, department, instructorEmail);
+                Course course = new Course(courseName, department);
                 course.setCourseId(courseId);
+
                 courseInstructor.setInstructorId(instructorId);
 
                 if (coursesWithInstructors.containsKey(course)) {
@@ -107,17 +123,21 @@ public class CourseDaoImpl implements CourseDao {
         }
     }
 
-    public List<CourseInfo> getStudentCoursesInfo(Student student) {
-        List<CourseInfo> studentCoursesInfo = new ArrayList<>();
+    public List<CourseEnrollment> getStudentCourseEnrollments(Student student) {
+        List<CourseEnrollment> studentCourseEnrollments = new ArrayList<>();
         String query = "SELECT " +
                 "sc.id AS Student_Course_ID, " +
                 "sc.course_id AS Course_ID, " +
                 "c.course_name AS Course_Name, " +
-                "c.department_name AS Department_Name, " +
-                "sc.grade AS Grade " +
+                "c.department_id AS Department_ID, " +
+                "d.department_name AS Department_Name, " +
+                "sc.grade AS Grade, " +
+                "sc.instructor_id AS Instructor_ID " +
                 "FROM student_courses sc " +
                 "JOIN course c ON sc.course_id = c.id " +
+                "JOIN department d ON c.department_id = d.id " +
                 "WHERE sc.student_id = ?";
+
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setInt(1, student.getStudentId());
@@ -126,20 +146,26 @@ public class CourseDaoImpl implements CourseDao {
                         int studentCourseId = resultSet.getInt("Student_Course_ID");
                         int courseId = resultSet.getInt("Course_ID");
                         String courseName = resultSet.getString("Course_Name");
+                        int departmentId = resultSet.getInt("Department_ID");
                         String departmentName = resultSet.getString("Department_Name");
+                        int instructorId = resultSet.getInt("Instructor_ID");
                         String grade = resultSet.getString("Grade");
-                        Course course = new Course(courseName, departmentName);
+
+                        Department department = new Department(departmentName);
+                        department.setId(departmentId);
+                        Course course = new Course(courseName, department);
                         course.setCourseId(courseId);
-                        CourseInfo courseGrade = new CourseInfo(studentCourseId, grade, course);
-                        studentCoursesInfo.add(courseGrade);
+                        CourseEnrollment courseEnrollment = new CourseEnrollment(student.getStudentId(), instructorId, course, grade, studentCourseId);
+                        studentCourseEnrollments.add(courseEnrollment);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return studentCoursesInfo;
+        return studentCourseEnrollments;
     }
+
     public void deleteStudentCourse(int studentId, int courseId) {
         String query = "DELETE FROM student_courses WHERE student_id = ? AND course_id = ?";
         try (Connection connection = getConnection()) {
@@ -156,9 +182,11 @@ public class CourseDaoImpl implements CourseDao {
         String query = "SELECT " +
                 "c.id AS Course_ID, " +
                 "c.course_name AS Course_Name, " +
-                "c.department_name AS Department_Name " +
+                "c.department_id AS Department_ID, " +
+                "d.department_name AS Department_Name " +
                 "FROM student_courses sc " +
                 "JOIN course c ON sc.course_id = c.id " +
+                "JOIN department d ON c.department_id = d.id " +
                 "WHERE sc.student_id = ?";
         List<Course> studentCourseList = new ArrayList<>();
         try (Connection connection = getConnection()) {
@@ -168,8 +196,12 @@ public class CourseDaoImpl implements CourseDao {
                     while (resultSet.next()) {
                         int courseId = resultSet.getInt("Course_ID");
                         String courseName = resultSet.getString("Course_Name");
+                        int departmentId = resultSet.getInt("Department_ID");
                         String departmentName = resultSet.getString("Department_Name");
-                        studentCourseList.add(new Course(courseName, departmentName));
+
+                        Department department = new Department(departmentName);
+                        department.setId(departmentId);
+                        studentCourseList.add(new Course(courseName, department));
                     }
                 }
             }
@@ -179,13 +211,16 @@ public class CourseDaoImpl implements CourseDao {
         return studentCourseList;
     }
 
+
     public List<Course> getAllInstructorCourses(Instructor instructor) {
         String query = "SELECT " +
                 "c.id AS Course_ID, " +
                 "c.course_name AS Course_Name, " +
-                "c.department_name AS Department_Name " +
+                "c.department_id AS Department_ID, " +
+                "d.department_name AS Department_Name " +
                 "FROM instructor_courses ic " +
                 "JOIN course c ON ic.course_id = c.id " +
+                "JOIN department d ON c.department_id = d.id " +
                 "WHERE ic.instructor_id = ?";
 
         List<Course> instructorCourses = new ArrayList<>();
@@ -196,8 +231,13 @@ public class CourseDaoImpl implements CourseDao {
                     while (resultSet.next()) {
                         int courseId = resultSet.getInt("Course_ID");
                         String courseName = resultSet.getString("Course_Name");
+                        int departmentId = resultSet.getInt("Department_ID");
                         String departmentName = resultSet.getString("Department_Name");
-                        Course course = new Course(courseName, departmentName);
+
+                        Department department = new Department(departmentName);
+                        department.setId(departmentId);
+
+                        Course course = new Course(courseName, department);
                         course.setCourseId(courseId);
 
                         instructorCourses.add(course);
@@ -209,13 +249,18 @@ public class CourseDaoImpl implements CourseDao {
         }
         return instructorCourses;
     }
+
+
+
     public List<Course> getUnassignedCoursesFromSameDept(Instructor instructor) {
         String query = "SELECT " +
                 "c.id AS Course_ID, " +
                 "c.course_name AS Course_Name, " +
-                "c.department_name AS Department_Name " +
+                "c.department_id AS Department_ID, " +
+                "d.department_name AS Department_Name " +
                 "FROM course c " +
-                "WHERE c.department_name = (SELECT department_name FROM instructor WHERE id = ?) " +
+                "JOIN department d ON c.department_id = d.id " +
+                "WHERE c.department_id = (SELECT department_id FROM instructor WHERE id = ?) " +
                 "AND c.id NOT IN (SELECT course_id FROM instructor_courses WHERE instructor_id = ?)";
         List<Course> unassignedCourses = new ArrayList<>();
         try (Connection connection = getConnection()) {
@@ -228,8 +273,11 @@ public class CourseDaoImpl implements CourseDao {
                     while (resultSet.next()) {
                         int courseId = resultSet.getInt("Course_ID");
                         String courseName = resultSet.getString("Course_Name");
+                        int departmentId = resultSet.getInt("Department_ID");
                         String departmentName = resultSet.getString("Department_Name");
-                        Course course = new Course(courseName, departmentName);
+                        Department department = new Department(departmentName);
+                        department.setId(departmentId);
+                        Course course = new Course(courseName, department);
                         course.setCourseId(courseId);
                         unassignedCourses.add(course);
                     }
@@ -240,6 +288,8 @@ public class CourseDaoImpl implements CourseDao {
         }
         return unassignedCourses;
     }
+
+
 
     public void assignCourseToInstructor(Course course, Instructor instructor) {
         String query = "INSERT INTO instructor_courses (instructor_id, course_id) VALUES (?, ?)";
@@ -306,8 +356,31 @@ public class CourseDaoImpl implements CourseDao {
         }
     }
     public List<Course> getAllCourses() {
-        return null;
+        List<Course> courseList = new ArrayList<>();
+        String query = "SELECT c.id, c.department_id, c.course_name, d.department_name " +
+                "FROM course c " +
+                "JOIN department d ON c.department_id = d.id";
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                int departmentId = resultSet.getInt("department_id");
+                String courseName = resultSet.getString("course_name");
+                String departmentName = resultSet.getString("department_name");
+                Department department = new Department(departmentName);
+                department.setId(departmentId);
+                Course course = new Course(courseName, department);
+                course.setCourseId(id);
+                courseList.add(course);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courseList;
     }
+
 
     public List<Course> getCoursesByDepartment(int departmentId) {
         return null;
@@ -316,6 +389,49 @@ public class CourseDaoImpl implements CourseDao {
     public void updateCourse(Course course) {
     }
     public void deleteCourse(int courseId) {
-
+        System.out.println("here = " + courseId);
+        String query = "DELETE FROM course WHERE id = ?";
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, courseId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void deleteCourseEnrollmentByStudentId(int studentId) {
+        String query = "DELETE FROM student_courses WHERE student_id = ?";
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, studentId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void deleteInstructorCoursesByInstructorId(int instructorId) {
+        String query = "DELETE FROM instructor_courses WHERE instructor_id = ?";
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, instructorId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void deleteStudentCoursesByInstructorId(int instructorId) {
+        System.out.println(instructorId);
+        String query = "DELETE FROM student_courses WHERE instructor_id = ?";
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, instructorId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

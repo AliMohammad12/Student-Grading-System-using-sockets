@@ -11,7 +11,6 @@ public class DepartmentService {
     public DepartmentService(DepartmentDao departmentDao) {
         this.departmentDao = departmentDao;
     }
-
     public void createDepartment(Department department) {
         departmentDao.createDepartment(department);
     }

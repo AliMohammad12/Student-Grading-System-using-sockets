@@ -95,6 +95,14 @@ public class AccountDaoImpl implements AccountDao {
 
     }
     public void deleteAccount(int accountId) {
-
+        String query = "DELETE FROM account WHERE id = ?";
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, accountId);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

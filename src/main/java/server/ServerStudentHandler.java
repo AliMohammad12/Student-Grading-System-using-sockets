@@ -84,8 +84,8 @@ public class ServerStudentHandler {
         outputToClient.writeInt(numberOfCourses);
         for (int i = 0; i < numberOfCourses; i++) {;
             Course course = coursesList.get(i);
-            System.out.println(coursesList.get(i).getCourseName() + " " +  coursesList.get(i).getDepartmentName());
-            outputToClient.writeUTF((i + 1) + "- Course Name: " + course.getCourseName() + " |  Course Department: " + course.getDepartmentName());
+            System.out.println(coursesList.get(i).getCourseName() + " " +  coursesList.get(i).getDepartment().getName());
+            outputToClient.writeUTF((i + 1) + "- Course Name: " + course.getCourseName() + " |  Course Department: " + course.getDepartment().getName());
         }
     }
     private int selectedCourseId() throws IOException {
@@ -107,16 +107,16 @@ public class ServerStudentHandler {
 
     private void withdrawFromCourse(Student student) throws IOException {
         outputToClient.writeUTF("[Server] Please select the course you want to withdraw from: ");
-        List<CourseInfo> courseInfoList = courseService.getStudentCoursesInfo(student);
-        int numberOfCourses = courseInfoList.size();
+        List<CourseEnrollment> courseEnrollmentList = courseService.getStudentCourseEnrollments(student);
+        int numberOfCourses = courseEnrollmentList.size();
         outputToClient.writeInt(numberOfCourses);
         for (int i = 0; i < numberOfCourses; i++) {
-            Course course = courseInfoList.get(i).getCourse();
+            Course course = courseEnrollmentList.get(i).getCourse();
             outputToClient.writeUTF((i + 1) + ": " + course.toString());
         }
         int selectedCourseId = inputFromClient.readInt() - 1;
-        CourseInfo courseInfo = courseInfoList.get(selectedCourseId);
-        Course withdrawnCourse = courseInfo.getCourse();
+        CourseEnrollment courseEnrollment = courseEnrollmentList.get(selectedCourseId);
+        Course withdrawnCourse = courseEnrollment.getCourse();
         courseService.deleteStudentCourse(student.getStudentId(), withdrawnCourse.getCourseId());
 
         outputToClient.writeUTF("You have successfully withdrawn from " + withdrawnCourse.getCourseName());
@@ -124,16 +124,16 @@ public class ServerStudentHandler {
 
     private void viewCourseGrade(Student student) throws IOException {
         outputToClient.writeUTF("[Server] Please select the course you want to view it's grade: ");
-        List<CourseInfo> courseInfoList = courseService.getStudentCoursesInfo(student);
-        int numberOfCourses = courseInfoList.size();
+        List<CourseEnrollment> courseEnrollmentList = courseService.getStudentCourseEnrollments(student);
+        int numberOfCourses = courseEnrollmentList.size();
         outputToClient.writeInt(numberOfCourses);
         for (int i = 0; i < numberOfCourses; i++) {
-            Course course = courseInfoList.get(i).getCourse();
+            Course course = courseEnrollmentList.get(i).getCourse();
             outputToClient.writeUTF((i + 1) + ": " + course.toString());
         }
-        int selectedCourseId = inputFromClient.readInt();
-        CourseInfo courseInfo = courseInfoList.get(selectedCourseId);
-        outputToClient.writeUTF("[Server] Your grade is for " + courseInfo.getCourse().getCourseName() + " is " + courseInfo.getGrade());
+        int selectedCourseId = inputFromClient.readInt() - 1;
+        CourseEnrollment courseEnrollment = courseEnrollmentList.get(selectedCourseId);
+        outputToClient.writeUTF("[Server] Your grade is for " + courseEnrollment.getCourse().getCourseName() + " is " + courseEnrollment.getGrade());
     }
 
     private void studentMenu() throws IOException {

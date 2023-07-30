@@ -23,17 +23,11 @@ public class InstructorService {
     public List<Instructor> getAllInstructors() {
         return instructorDao.getAllInstructors();
     }
-
-
     public Instructor getInstructorByAccountId(int accountId) {
         return instructorDao.getInstructorByAccountId(accountId);
     }
     public List<Instructor> getInstructorsByDepartment(int departmentId) {
         return getInstructorsByDepartment(departmentId);
-    }
-
-    public void updateInstructor(Instructor instructor) {
-        instructorDao.updateInstructor(instructor);
     }
 
     public void deleteInstructor(int instructorId) {

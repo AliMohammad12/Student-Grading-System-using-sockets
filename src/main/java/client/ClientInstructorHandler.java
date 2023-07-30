@@ -1,6 +1,7 @@
 package client;
 
 import model.Course;
+import util.InputValidator;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -11,11 +12,14 @@ import java.util.Scanner;
 public class ClientInstructorHandler {
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
-    Scanner scan;
+    private InputValidator inputValidator;
+    private int menuSize;
+
     public ClientInstructorHandler(DataOutputStream toServer, DataInputStream fromServer) {
         this.toServer = toServer;
         this.fromServer = fromServer;
-        scan = new Scanner(System.in);
+        inputValidator = new InputValidator();
+        menuSize = 6;
     }
     public void handleInstructor() throws IOException {
         System.out.println(fromServer.readUTF());
@@ -25,7 +29,7 @@ public class ClientInstructorHandler {
         int choice = 0;
         do {
             responseInstructorMenu();
-            choice = scan.nextInt();
+            choice = inputValidator.getValidInteger(1, menuSize);
             toServer.writeInt(choice);
             if (choice == 1) {
                 handleDisplayingInstructorInformation();
@@ -43,28 +47,30 @@ public class ClientInstructorHandler {
     private void handleDisplayingInstructorInformation() throws IOException { // 1
         System.out.println(fromServer.readUTF());
     }
-    private void handleDisplayingInstructorCourses() throws IOException { // 2
+    private  handleDisplayingInstructorCourses() throws IOException { // 2
         System.out.println(fromServer.readUTF());
         int numberOfCourses = fromServer.readInt();
         for (int i = 0; i < numberOfCourses; i++) {
             System.out.println(fromServer.readUTF());
         }
+        return numberOfCourses
     }
     private void handleTeachNewCourse() throws IOException { // 3
-        handleDisplayAvailableCoursesToTeach();
-        handleSelectingId();
+        int numberOfAvailableCourses = handleDisplayAvailableCoursesToTeach();
+        handleSelectingId(numberOfAvailableCourses);
         System.out.println(fromServer.readUTF());
     }
-    private void handleDisplayAvailableCoursesToTeach() throws IOException { // 3
+    private int handleDisplayAvailableCoursesToTeach() throws IOException { // 3
         System.out.println(fromServer.readUTF());
         int numberOfAvailableCourses = fromServer.readInt();
         for (int i = 0; i < numberOfAvailableCourses; i++) {
             System.out.println(fromServer.readUTF());
         }
+        return numberOfAvailableCourses;
     }
-    private void handleSelectingId() throws IOException { // 3
+    private void handleSelectingId(int limit) throws IOException { // 3
         System.out.println(fromServer.readUTF());
-        int selectedId = scan.nextInt();
+        int selectedId = inputValidator.getValidInteger(1, limit) - 1;
         toServer.writeInt(selectedId);
     }
     private void handleRemovingCourseFromInstructor() throws IOException { // 4
@@ -100,8 +106,6 @@ public class ClientInstructorHandler {
         toServer.writeUTF(newGrade);
         System.out.println(fromServer.readUTF());
     }
-
-
     private void responseInstructorMenu() throws IOException {
         System.out.println(fromServer.readUTF());
         System.out.println(fromServer.readUTF());

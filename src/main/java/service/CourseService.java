@@ -26,10 +26,10 @@ public class CourseService {
     public List<Course> getAllCourses() {
         return courseDao.getAllCourses();
     }
-    public List<CourseInfo> getStudentCoursesInfo(Student student) { // HERE too
-        return courseDao.getStudentCoursesInfo(student);
+    public List<CourseEnrollment> getStudentCourseEnrollments(Student student) {
+        return courseDao.getStudentCourseEnrollments(student);
     }
-    public CourseEnrollment getCourseEnrollment(Student student, Course course, Instructor instructor) { // HERE too
+    public CourseEnrollment getCourseEnrollment(Student student, Course course, Instructor instructor) {
         return courseDao.getCourseEnrollment(student, course, instructor);
     }
     public void updateCourseEnrollmentGradeById(int courseEnrollmentId, String newGrade) {
@@ -61,5 +61,14 @@ public class CourseService {
     }
     public void deleteCourse(int courseId) {
         courseDao.deleteCourse(courseId);
+    }
+    public void deleteCourseEnrollmentByStudentId(int studentId) {
+        courseDao.deleteCourseEnrollmentByStudentId(studentId);
+    }
+    public void deleteInstructorCoursesByInstructorId(int instructorId) {
+        courseDao.deleteInstructorCoursesByInstructorId(instructorId);
+    }
+    public void deleteStudentCoursesByInstructorId(int instructorId) {
+        courseDao.deleteStudentCoursesByInstructorId(instructorId);
     }
 }
